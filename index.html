@@ -90,13 +90,27 @@
             transition: all 0.15s; outline: none; 
         }
         .toolbar button:hover, .toolbar select:hover { border-color: var(--text-muted); }
-        .toolbar select { flex-grow: 1; }
+        .toolbar select { 
+            flex-grow: 1; -webkit-appearance: none; -moz-appearance: none; appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath fill='%23666' d='M1 1l5 5 5-5'/%3E%3C/svg%3E");
+            background-repeat: no-repeat; background-position: right 12px center; background-size: 10px;
+            padding-right: 32px;
+        }
+        .toolbar select option { background-color: var(--card-bg); color: var(--text-main); }
         .toolbar button.icon-btn { min-width: 38px; height: 38px; padding: 0 10px; display: flex; align-items: center; justify-content: center; }
         .toolbar button.active { background-color: var(--accent-red); border-color: var(--accent-red); color: #FFFFFF; }
         .toolbar button.full-width { width: 100%; }
         
         /* --- COLOR PALETTE --- */
         .color-palette { display: flex; gap: 8px; margin-bottom: 16px; }
+        .color-input {
+            -webkit-appearance: none; appearance: none; width: 30px; height: 30px;
+            border: 2px solid var(--border-color); border-radius: 50%; padding: 0;
+            cursor: pointer; background: none; flex-shrink: 0;
+        }
+        .color-input::-webkit-color-swatch-wrapper { padding: 0; }
+        .color-input::-webkit-color-swatch { border: none; border-radius: 50%; }
+        .color-input::-moz-color-swatch { border: none; border-radius: 50%; }
         .color-btn { width: 24px; height: 24px; border-radius: 50%; border: 2px solid transparent; cursor: pointer; transition: transform 0.2s; }
         .color-btn:hover { transform: scale(1.1); }
         .color-btn.active { border-color: var(--text-main); }
@@ -106,22 +120,27 @@
         #word-counter { font-size: 0.7rem; color: var(--text-muted); text-align: center; margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border-color); letter-spacing: 1px; text-transform: uppercase; }
         
 
-        /* --- QUICK TOOLBAR (floating bubble) --- */
+        /* --- QUICK TOOLS (in sidebar on desktop, floating bubble on mobile) --- */
         #quick-tools {
-            position: fixed; top: 15px; left: 50%; transform: translateX(-50%);
-            z-index: 35; display: flex; gap: 4px; align-items: center; flex-wrap: wrap;
-            justify-content: center; max-width: 92vw;
+            display: flex; flex-direction: column; gap: 10px; margin-bottom: 22px;
+        }
+        #quick-tools .toolbar { margin: 0; }
+        #quick-tools .qsep { display: none; }
+        #quick-tools.mobile-float {
+            position: fixed; top: 62px; left: 8px; right: 8px; z-index: 35;
+            flex-direction: row; flex-wrap: wrap; justify-content: center;
             background-color: var(--card-bg); border: 1px solid var(--border-color);
             border-radius: 16px; padding: 6px; box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+            margin-bottom: 0;
         }
-        #quick-tools .toolbar { margin: 0; gap: 4px; flex-wrap: wrap; justify-content: center; }
-        #quick-tools .qsep { width: 1px; height: 26px; background: var(--border-color); margin: 0 4px; }
+        #quick-tools.mobile-float .toolbar { flex-wrap: wrap; justify-content: center; }
+        #quick-tools.mobile-float .qsep { display: block; width: 1px; height: 26px; background: var(--border-color); margin: 0 4px; }
 
         /* --- WORKSPACE --- */
         #workspace { 
             flex-grow: 1; display: flex; flex-direction: column; 
             align-items: center; justify-content: flex-start;
-            padding: 150px 40px 120px 40px; box-sizing: border-box; 
+            padding: 80px 40px 120px 40px; box-sizing: border-box; 
             position: relative; overflow-y: auto; overflow-x: hidden; scroll-behavior: smooth;
         }
 
@@ -201,7 +220,6 @@
             }
             #sidebar.collapsed { transform: translateX(-100%); margin-right: 0; }
             #sidebar:not(.collapsed) ~ #workspace::after { content: ''; }
-            #quick-tools { top: 62px; left: 8px; right: 8px; transform: none; max-width: none; }
             #workspace { padding: 200px 14px 100px 14px; width: 100%; }
             .card-preview { padding: 22px; border-radius: 16px; }
             .format-auto { min-width: 0; width: 100%; max-width: 100%; min-height: 0; }
@@ -237,11 +255,13 @@
             <button id="btn-bold" class="icon-btn" onclick="formatText('bold')" data-i18n-title="bold" title="Bold (Ctrl+B)"><b>B</b></button>
             <button id="btn-italic" class="icon-btn" onclick="formatText('italic')" data-i18n-title="italic" title="Italic (Ctrl+I)"><i>I</i></button>
             <button id="btn-underline" class="icon-btn" onclick="applyUnderline()" data-i18n-title="underline" title="Underline (Ctrl+U)"><u>U</u></button>
+            <input type="color" id="underline-color" class="color-input" value="#ea1515" title="Underline color">
             <button id="btn-strike" class="icon-btn" onclick="applyStrike()" data-i18n-title="strike" title="Strikethrough (Ctrl+Shift+S)"><s>S</s></button>
             <button id="btn-code" class="icon-btn" onclick="applyInlineCode()" data-i18n-title="code" title="Inline code (Ctrl+E)">&lt;/&gt;</button>
             <button id="btn-highlight" class="icon-btn" onclick="applyHighlight()" data-i18n-title="highlight" title="Highlight selection">
                 <mark id="highlight-dot" style="background-color: rgba(234,21,21,0.3); color: inherit; padding: 0 4px; border-radius: 4px;">H</mark>
             </button>
+            <input type="color" id="highlight-color" class="color-input" value="#ea1515" title="Highlight color">
         </div>
         <div class="qsep"></div>
         <div class="toolbar">
@@ -249,6 +269,7 @@
             <button id="btn-h2" class="icon-btn" onclick="formatBlockType('h2')" data-i18n-title="h2" title="Heading 2 (Ctrl+Shift+2, or '## ')">H2</button>
             <button id="btn-h3" class="icon-btn" onclick="formatBlockType('h3')" data-i18n-title="h3" title="Heading 3 (Ctrl+Shift+3, or '### ')">H3</button>
             <button id="btn-quote" class="icon-btn" onclick="formatBlockType('blockquote')" data-i18n-title="quote" title="Quote (Ctrl+Shift+9, or '> ')">&ldquo;</button>
+            <input type="color" id="quote-color-input" class="color-input" value="#ea1515" title="Quote bar color">
             <button id="btn-ul" class="icon-btn" onclick="insertListType('insertUnorderedList')" data-i18n-title="ul" title="Bullet list (Ctrl+Shift+8, or '- ')">&bull; List</button>
             <button id="btn-ol" class="icon-btn" onclick="insertListType('insertOrderedList')" data-i18n-title="ol" title="Numbered list (Ctrl+Shift+7, or '1. ')">1. List</button>
             <button id="btn-pre" class="icon-btn" onclick="formatBlockType('pre')" data-i18n-title="pre" title="Code block (or type '```' + Enter)">{ }</button>
@@ -257,25 +278,6 @@
     </div>
 
     <div id="sidebar">
-        <h2 class="section-spacer"><span class="dot-indicator" style="background-color: var(--text-muted)"></span> <span data-i18n="accentTitle">Accent (Highlight &amp; Underline)</span></h2>
-        <div class="color-palette">
-            <div class="color-btn active" data-hex="#ea1515" style="background-color: #ea1515;" onclick="setColor(this, '#ea1515', 'rgba(234, 21, 21, 0.3)')"></div>
-            <div class="color-btn" data-hex="#eab308" style="background-color: #eab308;" onclick="setColor(this, '#eab308', 'rgba(234, 179, 8, 0.3)')"></div>
-            <div class="color-btn" data-hex="#22c55e" style="background-color: #22c55e;" onclick="setColor(this, '#22c55e', 'rgba(34, 197, 94, 0.3)')"></div>
-            <div class="color-btn" data-hex="#3b82f6" style="background-color: #3b82f6;" onclick="setColor(this, '#3b82f6', 'rgba(59, 130, 246, 0.3)')"></div>
-            <div class="color-btn" data-hex="#d946ef" style="background-color: #d946ef;" onclick="setColor(this, '#d946ef', 'rgba(217, 70, 239, 0.3)')"></div>
-        </div>
-
-        <h2 class="section-spacer"><span class="dot-indicator" style="background-color: var(--text-muted)"></span> <span data-i18n="quoteTitle">Quote Bar Color</span></h2>
-        <div class="color-palette">
-            <div class="color-btn active" data-qhex="#ea1515" style="background-color: #ea1515;" onclick="setQuoteColor(this, '#ea1515')"></div>
-            <div class="color-btn" data-qhex="#eab308" style="background-color: #eab308;" onclick="setQuoteColor(this, '#eab308')"></div>
-            <div class="color-btn" data-qhex="#22c55e" style="background-color: #22c55e;" onclick="setQuoteColor(this, '#22c55e')"></div>
-            <div class="color-btn" data-qhex="#3b82f6" style="background-color: #3b82f6;" onclick="setQuoteColor(this, '#3b82f6')"></div>
-            <div class="color-btn" data-qhex="#d946ef" style="background-color: #d946ef;" onclick="setQuoteColor(this, '#d946ef')"></div>
-            <div class="color-btn" data-qhex="#FFFFFF" style="background-color: #FFFFFF; border:1px solid var(--border-color);" onclick="setQuoteColor(this, '#FFFFFF')"></div>
-        </div>
-
         <h2 class="section-spacer"><span class="dot-indicator" style="background-color: #666"></span> <span data-i18n="formatTitle">Format &amp; Theme</span></h2>
         <div class="toolbar">
             <select id="format-select" onchange="changeFormat(this.value)" data-i18n-title="formatSelect" title="Card aspect ratio">
@@ -353,23 +355,28 @@
             document.getElementById('sidebar').classList.toggle('collapsed');
         }
 
-        // ===== Quote bar color =====
-        function setQuoteColor(element, hex) {
-            document.documentElement.style.setProperty('--quote-color', hex);
-            document.querySelectorAll('[data-qhex]').forEach(btn => btn.classList.remove('active'));
-            element.classList.add('active');
-            activeQuoteColor = hex;
-            scheduleAutosave();
+        // ===== Colors (native pickers) =====
+        function hexToRgba(hex, alpha) {
+            const h = hex.replace('#','');
+            const r = parseInt(h.substring(0,2),16), g = parseInt(h.substring(2,4),16), b = parseInt(h.substring(4,6),16);
+            return 'rgba(' + r + ', ' + g + ', ' + b + ', ' + alpha + ')';
         }
 
-        // ===== Colors =====
-        function setColor(element, hex, rgba) {
-            activeHexColor = hex;
-            activeRgbaColor = rgba;
-            document.querySelectorAll('.color-btn').forEach(btn => btn.classList.remove('active'));
-            element.classList.add('active');
+        document.getElementById('underline-color').addEventListener('input', function() {
+            activeHexColor = this.value;
             scheduleAutosave();
-        }
+        });
+
+        document.getElementById('highlight-color').addEventListener('input', function() {
+            activeRgbaColor = hexToRgba(this.value, 0.3);
+            scheduleAutosave();
+        });
+
+        document.getElementById('quote-color-input').addEventListener('input', function() {
+            activeQuoteColor = this.value;
+            document.documentElement.style.setProperty('--quote-color', this.value);
+            scheduleAutosave();
+        });
 
         // ===== Basic formatting =====
         function formatText(command) { 
@@ -825,16 +832,17 @@
             if (state.color) {
                 activeHexColor = state.color;
                 activeRgbaColor = state.rgba || activeRgbaColor;
-                document.querySelectorAll('.color-btn').forEach(btn => {
-                    btn.classList.toggle('active', btn.getAttribute('data-hex') === state.color);
-                });
+                document.getElementById('underline-color').value = state.color;
+                const m = (activeRgbaColor.match(/[\d.]+/g) || []);
+                if (m.length >= 3) {
+                    const toHex = n => parseInt(n).toString(16).padStart(2,'0');
+                    document.getElementById('highlight-color').value = '#' + toHex(m[0]) + toHex(m[1]) + toHex(m[2]);
+                }
             }
             if (state.quoteColor) {
                 activeQuoteColor = state.quoteColor;
                 document.documentElement.style.setProperty('--quote-color', state.quoteColor);
-                document.querySelectorAll('[data-qhex]').forEach(btn => {
-                    btn.classList.toggle('active', btn.getAttribute('data-qhex') === state.quoteColor);
-                });
+                document.getElementById('quote-color-input').value = state.quoteColor;
             }
             setLanguage(state.lang || 'auto');
             updateWordCount();
@@ -954,7 +962,48 @@
             scheduleAutosave();
         }
 
+        // ===== Fonts folder (auto-detected) =====
+        // Create a folder named "fonts" next to this HTML file, put your font
+        // files inside it, and list their filenames in "fonts/fonts.json"
+        // as a JSON array, e.g. ["MyFont.otf","Another.ttf"]
+        async function loadFontFolder() {
+            try {
+                const res = await fetch('fonts/fonts.json');
+                if (!res.ok) return;
+                const list = await res.json();
+                const sel = document.getElementById('font-select');
+                for (const file of list) {
+                    const name = file.replace(/\.[^.]+$/, '');
+                    try {
+                        const ff = new FontFace(name, "url('fonts/" + file + "')");
+                        await ff.load();
+                        document.fonts.add(ff);
+                        const opt = document.createElement('option');
+                        opt.value = name; opt.textContent = name;
+                        sel.appendChild(opt);
+                    } catch(err) {}
+                }
+            } catch(err) {}
+        }
+
+        // ===== Quick-tools placement (sidebar on desktop, floating on mobile) =====
+        const quickTools = document.getElementById('quick-tools');
+        const sidebarEl = document.getElementById('sidebar');
+        const mobileMQ = window.matchMedia('(max-width: 768px)');
+        function placeQuickTools() {
+            if (mobileMQ.matches) {
+                if (quickTools.parentElement !== document.body) document.body.appendChild(quickTools);
+                quickTools.classList.add('mobile-float');
+            } else {
+                if (quickTools.parentElement !== sidebarEl) sidebarEl.insertBefore(quickTools, sidebarEl.firstChild);
+                quickTools.classList.remove('mobile-float');
+            }
+        }
+        mobileMQ.addEventListener('change', placeQuickTools);
+        placeQuickTools();
+
         // ===== Init =====
+        loadFontFolder();
         loadState();
     </script>
 </body>
